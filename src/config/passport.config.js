@@ -12,7 +12,6 @@ const initializePassport = () => {
         passReqToCallback: true,
     }, async (req, username, password, done) => {
         const { first_name, last_name, email, age } = req.body;
-        console.log(first_name, last_name, email, age)
         try {
             let user = await userModel.findOne({ email: username });
             if (user) return done(null, false);
@@ -23,6 +22,7 @@ const initializePassport = () => {
                 email,
                 age,
                 password: createHash(password),
+                role: "user"
             })
             user = await userModel.create(newUser);
             return done(null, user);
@@ -48,44 +48,6 @@ const initializePassport = () => {
             return done({ message: "Error logging in" });
         }
     }));
-
-    passport.use('current', new LocalStrategy({ usernameField: 'email' }, async (username, done) => {
-        try {
-            const user = await userModel.findOne({ email: username });
-            if (!user) {
-                console.log("User not found");
-                return done(null, false, { message: "User not found" });
-            }
-
-            if (!req.isAuthenticated()) {
-                console.log("Session not found");
-                return done(null, false, { message: "Session not found" });
-            }
-    
-            const safeUserData = {
-                username: user.first_name,
-                age: user.age
-            };
-            
-            return done(null, safeUserData);
-        } catch (error) {
-            console.error("Error:", error);
-            return done({ message: "Error, user not found" });
-        }
-    }));
-
-    //passport.use('current', new LocalStrategy({}, async (username, done) => {
-    //    try {
-    //        if(!user) { 
-    //            console.log("User not found");
-    //            return done(null, false, { message: "User not found" });
-    //        }
-    //        return done(null, { username }); // Retorna un objeto con el nombre de usuario.
-    //    } catch (error) {
-    //        console.error("Error:", error);
-    //        return done({ message: "Error, session not found" });
-    //    }
-    //}));
 
     passport.use('github', new GitHubStrategy({
         clientID: 'Iv1.4cd974739022e22c',

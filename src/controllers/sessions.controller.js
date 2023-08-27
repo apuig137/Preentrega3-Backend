@@ -1,5 +1,6 @@
+import UserDTO from "../dao/DTOs/user.dto.js";
+
 export const register = async (req, res) => {
-    console.log(req.session)
     res.send({ status: "success", message: "User registered" });
 }
 
@@ -45,5 +46,19 @@ export const githubCallback = async (req, res) => {
 }
 
 export const current = async (req, res) => {
-    res.redirect("/")
-}
+    if (req.isAuthenticated()) {
+        const user = req.user;
+        const { first_name, last_name, email, age } = user;
+        console.log(req.user)
+        const safeUserData = new UserDTO({
+            first_name,
+            last_name,
+            email,
+            age,
+        });
+
+        res.send({ status: "success", payload: safeUserData, message: "¡Logueo realizado! :)" });
+    } else {
+        res.status(401).send({ status: "error", message: "Usuario no autenticado" });
+    }
+};

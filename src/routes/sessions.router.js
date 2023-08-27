@@ -16,7 +16,7 @@ router.get('/faillogin', failLogin);
 
 router.get('/logout', logout)
 
-router.get('/current', passport.authenticate("current"), current)
+router.get('/current', current)
 
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }), async (req, res) => { });
 
