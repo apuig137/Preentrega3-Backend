@@ -6,6 +6,7 @@ import realTimeProductsRouter from "./routes/realTimeProducts.router.js"
 import chatRouter from "./routes/chat.router.js"
 import sessionsRouter from "./routes/sessions.router.js"
 import viewsRouter from "./routes/views.router.js"
+import ticketRouter from "./routes/ticket.router.js"
 import handlebars from "express-handlebars"
 import __dirname from "./utils.js";
 import { Server } from "socket.io"
@@ -54,6 +55,7 @@ app.use("/api/carts", cartRouter)
 app.use("/api/realtimeproducts", realTimeProductsRouter)
 app.use("/api/chat", chatRouter)
 app.use("/api/sessions", sessionsRouter)
+app.use("api/ticket", ticketRouter)
 
 const httpServer = app.listen(PORT, () => {
     displayRoutes(app)

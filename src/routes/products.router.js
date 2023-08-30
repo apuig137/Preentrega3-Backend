@@ -1,18 +1,17 @@
 import { Router } from "express";
-import { privateAccess } from "./views.router.js";
 import { getProducts, getProductId, addProduct, updateProduct, deleteProduct } from "../controllers/products.controller.js";
-import { checkUserRole } from "../utils.js";
+import { checkUserRole, adminPass } from "../utils.js";
 
 const router = Router()
 
 router.get("/", getProducts)
 
-router.get("/:id", privateAccess, getProductId)
+router.get("/:id", getProductId)
 
-router.post("/", privateAccess, addProduct)
+router.post("/", checkUserRole("admin"), addProduct)
 
-router.put('/:id', privateAccess, updateProduct);
+router.put('/:id', checkUserRole("admin"), updateProduct);
 
-router.delete('/:id', checkUserRole("admin"), deleteProduct);
+router.delete('/:id', adminPass, deleteProduct);
 
 export default router;

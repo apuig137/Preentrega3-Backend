@@ -20,9 +20,9 @@ export const login = async (req, res) => {
         req.session.user = {
             name: `${req.user.first_name} ${req.user.last_name}`,
             email: req.user.email,
-            age: req.user.age
+            age: req.user.age,
+            role: req.user.role,
         }
-        console.log(req.session.user)
         res.send({ status: "success", payload: req.session.user, message: "¡Logueo realizado! :)" });
     } catch (error) {
         console.log(error)

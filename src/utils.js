@@ -7,13 +7,21 @@ export const isValidPassword = (password, hash) => bcrypt.compareSync(password, 
 
 export const checkUserRole = (role) => {
     return (req, res, next) => {
-        console.log(req.user)
-        if (req.isAuthenticated() && req.user.role === role) {
+        console.log(req.session.user)
+        if (req.isAuthenticated() && req.session.user.role === role) {
             return next();
         } else {
             res.status(403).send({ status: "error", message: "Unauthorized access" });
         }
     };
+};
+
+export const adminPass = async (req, res, next) => {
+    console.log(req.session.user)
+    if (req.session.user && req.session.user.role === "admin") {
+        return next();
+    }
+    res.status(403).send({ status: "error", message: "Unauthorized access" });
 };
 
 const __filename = fileURLToPath(import.meta.url)

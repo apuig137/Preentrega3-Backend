@@ -22,5 +22,4 @@ router.get('/github', passport.authenticate('github', { scope: ['user:email'] })
 
 router.get('/githubcallback', passport.authenticate('github', { failureRedirect: 'api/sessions/login' }), githubCallback);
 
-
 export default router;

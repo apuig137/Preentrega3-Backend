@@ -15,7 +15,6 @@ const initializePassport = () => {
         try {
             let user = await userModel.findOne({ email: username });
             if (user) return done(null, false);
-            console.log("seguimos")
             const newUser = new UserDTO({
                 first_name,
                 last_name,
