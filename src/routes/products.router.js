@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getProducts, getProductId, addProduct, updateProduct, deleteProduct } from "../controllers/products.controller.js";
-import { checkUserRole, adminPass } from "../utils.js";
+import { getProducts, getProductId, addProduct, updateProduct, deleteProduct, mockingProducts } from "../controllers/products.controller.js";
+import { adminPass } from "../utils.js";
 
 const router = Router()
 
@@ -8,10 +8,12 @@ router.get("/", getProducts)
 
 router.get("/:id", getProductId)
 
-router.post("/", checkUserRole("admin"), addProduct)
+router.post("/", adminPass, addProduct)
 
-router.put('/:id', checkUserRole("admin"), updateProduct);
+router.put('/:id', adminPass, updateProduct);
 
-router.delete('/:id', adminPass, deleteProduct);
+router.get('/deleteproduct/:id', adminPass, deleteProduct);
+
+router.post('/mockingproducts', mockingProducts)
 
 export default router;
