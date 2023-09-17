@@ -16,6 +16,7 @@ import displayRoutes from "express-routemap";
 import passport from "passport";
 import initializePassport from "./config/passport.config.js";
 import config from "./config/config.js";
+import { addLogger } from "./utils/logger.js";
 
 const app = express()
 const PORT = 8080
@@ -49,6 +50,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(express.json())
+app.use(addLogger)
+
 app.use("/", viewsRouter)
 app.use("/api/products", productsRouter)
 app.use("/api/carts", cartRouter)

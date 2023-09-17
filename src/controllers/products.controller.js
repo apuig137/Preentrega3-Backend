@@ -6,6 +6,7 @@ import EErrors from "../errors/enums.js";
 
 export const getProducts = async (req, res) => {
     let { page, limit, sort } = req.query;
+    req.logger.warn("Alerta!")
     let products;
     if (page) {
         products = await productModel.paginate(
@@ -56,33 +57,8 @@ export const getProductId =  async (req, res) => {
     }
 }
 
-//export const addProduct = async (req, res) => {
-//    const {title, description, price, code, stock, quantity, thumbnail} = req.body
-//    let product = await productModel.create({
-//        title,
-//        description,
-//        price,
-//        code,
-//        stock,
-//        quantity,
-//        thumbnail
-//    })
-//    if(!title || !description || !price || !code || !stock || !quantity){
-//        console.log("error")
-//        CustomError.createError({
-//            name: "Product creation error",
-//            cause: generateProductErrorInfo({title, description, price, code, stock, quantity, thumbnail}),
-//            message: "Error trying to create a product",
-//            code: EErrors.INVALID_TYPES_ERROR
-//        })
-//    } else 
-//        {res.send({status:"succes",payload:product})
-//    }
-//}
-
 export const addProduct = async (req, res) => {
     const { title, description, price, code, stock, quantity, thumbnail } = req.body;
-    console.log(req.body)
     try {
         if (!title || !description || !price || !code || !stock) {
             console.log("error");
