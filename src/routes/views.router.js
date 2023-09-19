@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { addLogger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -26,5 +27,15 @@ router.get('/', privateAccess, async (req, res) => {
         user: req.session.user
     });
 });
+
+router.get("/loggerTest", async (req, res) => {
+    req.logger.debug('Mensaje de depuración');
+    req.logger.info('Mensaje informativo');
+    req.logger.warning('Mensaje de advertencia');
+    req.logger.error('Mensaje de error');
+    req.logger.fatal('Mensaje de error fatal');
+
+    res.send('Logs enviados. Verifica la consola o el archivo de registro.');
+})
 
 export default router;
