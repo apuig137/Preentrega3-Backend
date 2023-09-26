@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { register, failRegister, login, failLogin, logout, githubCallback, successRegister, current, sendEmail } from "../controllers/sessions.controller.js"
+import { validateToken } from '../utils.js';
 
 const router = Router();
 
@@ -23,5 +24,9 @@ router.get('/github', passport.authenticate('github', { scope: ['user:email'] })
 router.get('/githubcallback', passport.authenticate('github', { failureRedirect: 'api/sessions/login' }), githubCallback);
 
 router.get("/sendrecovermail/:email", sendEmail)
+
+router.get("/restorepass/:token", validateToken, (req, res) => {
+    res.render("restorePass", {token: req.params.token})
+})
 
 export default router;

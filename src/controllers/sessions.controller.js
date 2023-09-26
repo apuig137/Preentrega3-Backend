@@ -1,5 +1,4 @@
 import UserDTO from "../dao/DTOs/user.dto.js";
-import { default as token } from 'jsonwebtoken'
 import config from "../config/config.js";
 import nodemailer from "nodemailer"
 import jwt from 'jsonwebtoken'
@@ -73,8 +72,8 @@ const mailConfig = {
     service: config.mailing.service,
     port: config.mailing.port,
     auth: {
-        user: "apuig137@gmail.com",
-        pass: "CoderNode",
+        user: config.mailing.auth.user,
+        pass: config.mailing.auth.pass,
     },
 }
 
@@ -82,18 +81,18 @@ const transport = nodemailer.createTransport(mailConfig)
 
 const generateToken = (email) => jwt.sign({ email }, PRIVATE_KEY, { expiresIn: "1d" })
 
-export const sendEmail = async (req, res) => {
+export const sendEmail = (req, res) => {
     try {
         const { email } = req.params
         const jwt = generateToken(email)
 
-        await transport.sendMail({
+        transport.sendMail({
             from: `${config.mailing.auth.user}`,
             to: email,
             subject: "Recuperar contraseña",
             html: `<h1>Para recuperar tu contraseña hace click en en el boton de abajo</h1>
                 <hr>
-                <a href="http://${config.baseUrl}/restorepass/${jwt}">CLICK AQUI</a>
+                <a href="http://${config.baseUrl}/api/sessions/restorepass/${jwt}">CLICK AQUI</a>
                 `
         })
         res.send({ message: "Mail sent!" })
@@ -101,26 +100,3 @@ export const sendEmail = async (req, res) => {
         res.json({ error: e })
     }
 }
-
-//export class UsersController {
-//    async sendEmail(email){
-//        try {
-//            const jwt = this.createJwt(email)
-//            transport.sendMail({
-//                from: `Coder <${config.mailing.auth.user}>`,
-//                to: email,
-//                subject: 'Recuperar pass',
-//                html: `<h1>Para recuperar tu pass, haz click en el boton de abajo</h1>
-//                        <hr>
-//                        <a href="http://${config.baseUrl}:8080/api/session/restore-pass/${jwt}">CLICK AQUI</a>
-//                `,
-//            });
-//        } catch (e) {
-//            res.json({ error: e });
-//        }
-//    }
-//
-//    createJwt(email){
-//        return token.sign({ email }, PRIVATE_KEY, { expiresIn: '1h' })
-//    }
-//}
