@@ -28,6 +28,10 @@ router.get('/', privateAccess, async (req, res) => {
     });
 });
 
+router.get("/resetpassword", async (req, res) => {
+    res.render("resetPassword")
+})
+
 router.get("/loggerTest", async (req, res) => {
     req.logger.debug('Mensaje de depuración');
     req.logger.info('Mensaje informativo');

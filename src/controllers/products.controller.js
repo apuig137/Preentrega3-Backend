@@ -6,7 +6,7 @@ import EErrors from "../errors/enums.js";
 
 export const getProducts = async (req, res) => {
     let { page, limit, sort } = req.query;
-    req.logger.warn("Alerta!")
+    req.logger.warning("Alerta!")
     let products;
     if (page) {
         products = await productModel.paginate(
