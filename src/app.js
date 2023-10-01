@@ -17,6 +17,7 @@ import passport from "passport";
 import initializePassport from "./config/passport.config.js";
 import config from "./config/config.js";
 import { addLogger } from "./utils/logger.js";
+import bodyParser from "body-parser";
 
 const app = express()
 const PORT = 8080
@@ -25,6 +26,9 @@ mongoose.connect(MONGO, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(express.static(__dirname + '/public'))
 

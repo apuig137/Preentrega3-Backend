@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
-import { register, failRegister, login, failLogin, logout, githubCallback, successRegister, current, sendEmail } from "../controllers/sessions.controller.js"
-import { validateToken } from '../utils.js';
+import { register, failRegister, login, failLogin, logout, githubCallback, successRegister, current, sendEmail, changePass } from "../controllers/sessions.controller.js"
+import { createHash, validateToken } from '../utils.js';
 
 const router = Router();
 
@@ -28,5 +28,7 @@ router.get("/sendrecovermail/:email", sendEmail)
 router.get("/restorepass/:token", validateToken, (req, res) => {
     res.render("restorePass", {token: req.params.token})
 })
+
+router.post("/changepass/:token", changePass)
 
 export default router;

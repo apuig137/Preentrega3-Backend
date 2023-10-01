@@ -28,8 +28,8 @@ router.get('/', privateAccess, async (req, res) => {
     });
 });
 
-router.get("/resetpassword", async (req, res) => {
-    res.render("resetPassword")
+router.get("/sendrecoveremail", async (req, res) => {
+    res.render("sendRecoverEmail")
 })
 
 router.get("/loggerTest", async (req, res) => {

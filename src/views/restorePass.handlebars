@@ -1,7 +1,6 @@
 <div>
     <h1>Ingrese su nueva contraseña</h1>
-    <form id="loginForm">
-        <label>Contraseña</label>
+    <form id="newPasswordForm" method="post" action="/api/sessions/changepass/{{token}}">
         <input type="password" name="password">
         <input type="submit">
     </form>

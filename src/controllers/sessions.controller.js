@@ -2,6 +2,8 @@ import UserDTO from "../dao/DTOs/user.dto.js";
 import config from "../config/config.js";
 import nodemailer from "nodemailer"
 import jwt from 'jsonwebtoken'
+import userModel from "../dao/models/user.model.js";
+import { createHash } from "../utils.js";
 
 export const register = async (req, res) => {
     res.send({ status: "success", message: "User registered" });
@@ -98,5 +100,30 @@ export const sendEmail = (req, res) => {
         res.send({ message: "Mail sent!" })
     } catch (e) {
         res.json({ error: e })
+    }
+}
+
+export const changePass = async (req, res) => {
+    const { password } = req.body;
+    const { token } = req.params;
+
+    try {
+        const decodedToken = jwt.verify(token, PRIVATE_KEY);
+        const { email } = decodedToken;
+        console.log(email)
+        console.log(req.body)
+
+        const user = await userModel.findOne({ email: email });
+
+        if (!user) {
+            return res.status(404).send({ message: 'Usuario no encontrado.' });
+        }
+
+        user.password = createHash(password);
+        await user.save();
+
+        return res.send({ message: '¡Contraseña cambiada!' });
+    } catch (error) {
+        return res.status(401).send({ message: 'Token JWT inválido.' });
     }
 }
