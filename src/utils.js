@@ -19,8 +19,7 @@ export const checkUserRole = (role) => {
 };
 
 export const adminPass = async (req, res, next) => {
-    console.log(req.session.user)
-    if (req.session.user && req.session.user.role === "admin") {
+    if (req.session.user && req.session.user.role === "admin" || req.session.user && req.session.user.role === "premium") {
         return next();
     }
     res.status(403).send({ status: "error", message: "Unauthorized access" });
@@ -39,6 +38,17 @@ export const validateToken = (req, res, next) => {
         res.send(`Hubo un error al intentar recuperar la contraseña: ${e.message}`)
     }
     
+}
+
+export const generateUniqueCode = () => {
+    let code = 0;
+
+    for (let i = 0; i < 6; i++) {
+        const digit = Math.floor(Math.random() * 10);
+        code = code * 10 + digit; // Agrega el dígito al código, desplazando los dígitos existentes una posición a la izquierda
+    }
+
+    return code;
 }
 
 const __filename = fileURLToPath(import.meta.url)

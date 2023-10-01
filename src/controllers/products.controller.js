@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker/locale/es_MX";
 import CustomError from "../errors/CustomError.js";
 import { generateProductErrorInfo } from "../errors/info.js";
 import EErrors from "../errors/enums.js";
+import { generateUniqueCode } from "../utils.js";
 
 export const getProducts = async (req, res) => {
     let { page, limit, sort } = req.query;
@@ -58,9 +59,22 @@ export const getProductId =  async (req, res) => {
 }
 
 export const addProduct = async (req, res) => {
-    const { title, description, price, code, stock, quantity, thumbnail } = req.body;
+    const { title, description, price, thumbnail } = req.body;
+
     try {
-        if (!title || !description || !price || !code || !stock) {
+        const code = generateUniqueCode()
+        const existingProduct = await productModel.findOne({ code: code });
+
+        if (existingProduct) {
+            let newCode;
+            do {
+                newCode = generateUniqueCode();
+            } while (await productModel.findOne({ code: newCode }));
+
+            code = newCode;
+        }
+
+        if (!title || !description || !price || !code) {
             console.log("error");
             CustomError.createError({
                 name: "Product creation error",
@@ -74,14 +88,14 @@ export const addProduct = async (req, res) => {
                 description,
                 price,
                 code,
-                stock,
-                quantity,
+                stock: 20,
+                quantity: 0,
                 thumbnail,
+                owner: req.session.user.email
             });
             res.send({ status: "success", payload: product });
         }
     } catch (error) {
-        // Maneja la excepción aquí, por ejemplo, enviando una respuesta de error al cliente.
         console.error(error);
         res.status(500).send("Error trying to create a product");
     }
@@ -99,10 +113,40 @@ export const updateProduct = async (req, res) => {
 }
 
 export const deleteProduct = async (req, res) => {
+    const userRole = req.session.user.role;
+    const userEmail = req.session.user.email;
     const id = req.params.id;
-    const result = await productModel.deleteOne({_id:id})
-    res.status(200).send("Producto eliminado exitosamente.")
-}
+
+    try {
+        if (userRole === "admin") {
+            const result = await productModel.deleteOne({ _id: id });
+            if (result.deletedCount === 1) {
+                return res.status(200).send("Producto eliminado exitosamente.");
+            } else {
+                return res.status(404).send("Producto no encontrado.");
+            }
+        }
+
+        if (userRole === "premium") {
+            const product = await productModel.findOne({ _id: id });
+            if (product && product.owner === userEmail) {
+                const result = await productModel.deleteOne({ _id: id });
+                if (result.deletedCount === 1) {
+                    return res.status(200).send("Producto eliminado exitosamente.");
+                } else {
+                    return res.status(404).send("Producto no encontrado.");
+                }
+            } else {
+                return res.status(403).send("No tienes permiso para eliminar este producto.");
+            }
+        }
+
+        return res.status(403).send("No tienes permiso para eliminar productos.");
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Error al eliminar el producto.");
+    }
+};
 
 export const mockingProducts = async (req, res) => {
     try {

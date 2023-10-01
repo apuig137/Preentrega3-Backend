@@ -28,6 +28,10 @@ router.get('/', privateAccess, async (req, res) => {
     });
 });
 
+router.get("/addProduct", privateAccess, async (req, res) => {
+    res.render("createProduct")
+})
+
 router.get("/sendrecoveremail", async (req, res) => {
     res.render("sendRecoverEmail")
 })

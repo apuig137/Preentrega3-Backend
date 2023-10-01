@@ -12,7 +12,7 @@ router.post("/", adminPass, addProduct)
 
 router.put('/:id', adminPass, updateProduct);
 
-router.get('/deleteproduct/:id', adminPass, deleteProduct);
+router.delete('/deleteproduct/:id', adminPass, deleteProduct);
 
 router.post('/mockingproducts', mockingProducts)
 

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import { register, failRegister, login, failLogin, logout, githubCallback, successRegister, current, sendEmail, changePass } from "../controllers/sessions.controller.js"
-import { createHash, validateToken } from '../utils.js';
+import { validateToken } from '../utils.js';
 
 const router = Router();
 
