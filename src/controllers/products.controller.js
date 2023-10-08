@@ -18,18 +18,18 @@ export const getProducts = async (req, res) => {
                 page: page ?? 1
             }
         );
-        res.render("products", { products: products.docs, productsPages: products });
+        res.json({ products: products });
     } else if (sort) {
         if (sort === "cheap") {
             products = await productModel.aggregate([
                 { $sort: { price: 1 } }
             ]);
-            res.render("products", { products: products });
+            res.json({ products: products })
         } else if (sort === "expensive") {
             products = await productModel.aggregate([
                 { $sort: { price: -1 } }
             ]);
-            res.render("products", { products: products });
+            res.json({ products: products });
         } else {
             return res.status(400).send("Ordenamiento no válido");
         }
@@ -38,23 +38,22 @@ export const getProducts = async (req, res) => {
         products = await productModel.aggregate([
             { $limit: limitInt }
         ]);
-        res.render("products", { products: products });
+        res.json({ products: products })
     } else {
         products = await productModel.aggregate([
             { $limit: 10 }
         ]);
-        res.render("products", { products: products });
+        res.json({ products: products })
     }
 }
 
 export const getProductId =  async (req, res) => {
     let productId = req.params.id
     let findProduct = await productModel.findOne({_id:productId})
-    let productsList = await productModel.find()
-    if (!productId) { 
-        res.send(productsList) 
+    if (!findProduct) { 
+        res.status(404).send('Producto no encontrado');
     } else {
-        res.send(findProduct)
+        res.json(findProduct)
     }
 }
 
@@ -147,6 +146,15 @@ export const deleteProduct = async (req, res) => {
         return res.status(500).send("Error al eliminar el producto.");
     }
 };
+
+export const deleteAllProducts = async (req, res) => {
+    try {
+      await productModel.deleteMany({}); // Elimina todos los documentos en la colección de productos
+        res.status(200).json({ message: 'Todos los productos han sido eliminados' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar productos' });
+    }
+}
 
 export const mockingProducts = async (req, res) => {
     try {

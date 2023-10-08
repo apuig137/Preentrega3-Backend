@@ -18,6 +18,8 @@ import initializePassport from "./config/passport.config.js";
 import config from "./config/config.js";
 import { addLogger } from "./utils/logger.js";
 import bodyParser from "body-parser";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUIExpress from "swagger-ui-express";
 
 const app = express()
 const PORT = 8080
@@ -26,6 +28,22 @@ mongoose.connect(MONGO, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.1',
+        info: {
+            title: 'Documentacion API Adopme',
+            description: 'Documentacion para uso de swagger!!'
+        }
+    },
+    apis: [`./src/docs/**/*.yaml`]
+}
+
+// creamos el specs
+const specs = swaggerJSDoc(swaggerOptions);
+// Declaramos swagger API - endpoint
+app.use('/apidocs', swaggerUIExpress.serve, swaggerUIExpress.setup(specs));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

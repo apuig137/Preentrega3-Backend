@@ -1,0 +1,101 @@
+paths:
+  /api/products:
+    get:
+      summary: Obtiene todos los productos
+      responses:
+        "200":
+          description: Los productos fueron obtenidos satisfactoriamente de la base de datos
+        "400":
+          description: Ordenamiento no válido
+        "500":
+          description: Error interno del servidor, usualmente generado por una query defectuosa o un error con la conexion a la base de datos
+    post:
+      summary: Agrega un producto a la base de datos
+      responses:
+        "200":
+          description: Se añadio el producto exitosamente
+        "403":
+          description: Algun campo del producto esta incompleto o es invalido
+        "500":
+          description: description: Error interno del servidor al añadir el producto, probablemente por un fallo en la conexion a la base de datos
+  /api/products/{param}:
+    get:
+      summary: Obtiene un producto por su id
+      responses:
+        "200": 
+          description: Se encontro el producto exitosamente
+        "404":
+          description: Producto no encontrado
+        "500":
+          description: Error interno del servidor al añadir el producto, probablemente por un fallo en la conexion a la base de datos
+    put:
+      summary: Modifica el producto con el id pasado como parametro
+      responses:
+        "200": 
+          description: Se actualizo el producto exitosamente
+        "404":
+          description: Producto no encontrado
+        "500":
+          description: Error interno del servidor al modificar el producto, probablemente por un fallo en la conexion a la base de datos
+    delete:
+      summary: Elimina el producto con el id pasado como parametro
+      responses:
+        "200":
+          description: Producto eliminado exitosamente
+        "403":
+          description: No tienes permiso para eliminar este producto
+        "404":
+          description: Producto no encontrado
+        "500":
+          description: Error interno del servidor al eliminar el producto, probablemente por un fallo en la conexion a la base de datos
+  /api/products/mockingproducts:
+    post:
+      summary: Se crean 100 productos de ejemplo en la base de datos con datos ficticios generados por la biblioteca faker
+      responses:
+        "200":
+          description: Productos creados correctamente
+        "500":
+          description: Error interno del servidor al crear los productos, probablemente por un fallo en la conexion a la base de datos
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id: 
+          type: ObjectId
+          description: Id autogenerado por mongo db
+        title:
+          type: String
+          description: Nombre del producto
+        description:
+          type: String
+          description: Breve descripcion del producto
+        price:
+          type: Number
+          description: Precio del producto
+        code:
+          type: Number
+          description: Codigo unico del producto
+        stock:
+          type: Number
+          description: Stock actual del producto
+        quantity:
+          type: Number
+          description: Cantidad a descontar del stock del producto
+        thumbnail:
+          type: String
+          description: Url de la imagen del producto, no es obligatoria
+        owner:
+          type: String
+          description: Email del creador del producto
+      example:
+        _id: ObjectId("6522133176fc589e4c546432")
+        title: Yogurt
+        description: Embase de 200ml de yogurt
+        price: 800
+        code: 123456
+        stock: 20
+        quantity: 0
+        thumbnail: https://tiendaenlinea.supermercadoelexito.hn/web/image/product.template/8032/image_1024?unique=70bb184
+        owner: apuig137@gmail.com

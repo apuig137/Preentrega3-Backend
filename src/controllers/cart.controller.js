@@ -1,6 +1,5 @@
 import { cartModel } from "../dao/models/cart.model.js";
 import { ticketModel } from "../dao/models/ticket.model.js";
-import { v4 as uuidv4 } from "uuid";
 
 export const getCarts = async (req, res) => {
     try {
@@ -15,7 +14,7 @@ export const getCartById = async (req, res) => {
     let cartId = req.params.cid
     let cartFind = await cartModel.findOne({_id:cartId}).populate("products").lean()
     if(!cartId){
-        res.send("No se encontro el carrito")
+        res.status(404).send('Carrito no encontrado')
     } else {
         res.render("cart", { products: cartFind.products })
     }
@@ -34,9 +33,15 @@ export const addProductToCart = async (req, res) => {
     let { pid, cid } = req.params
     let productFind = await productModel.findOne({ _id:pid })
     let cartFind = await cartModel.findOne({ _id:cid })
+    if(!productFind){
+        res.status(404).send('Producto no encontrado')
+    }
+    if(!cartFind){
+        res.status(403).send('Carrito no encontrado')
+    }
     cartFind.products.push(productFind.toObject())
     cartFind.save()
-    res.send("Producto agregado")
+    res.status(200).send('Producto agregado')
 }
 
 export const deleteCart = async (req, res) => {
@@ -89,7 +94,7 @@ export const purchase = async (req, res) => {
             }
         }
         
-        // Limpia el carrito (opcional, depende de tu implementación)
+        // Limpieza del carrito
         cart.products = [];
         await cart.save();
         const ticket = await ticketModel.create({

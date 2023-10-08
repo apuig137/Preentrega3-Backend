@@ -1,0 +1,83 @@
+paths:
+  /api/carts:
+    get: Obtiene todos los carritos
+      summary:
+      responses:
+        "200":
+          description: Carritos obtenidos correctamente
+        "500":
+          description: Error interno del servidor al obtener los carritos, probablemente por un fallo en la conexion a la base de datos
+    post: Crea un carrito nuevo
+      summary:
+      responses:
+        "200":
+          description: Carrito generado correctamente
+        "500":
+          description: Error interno del servidor al generar el carrito, probablemente por un fallo en la conexion a la base de datos
+  /api/carts/{param}:
+    get: Obtiene el carrito que contenga el id pasado como parametro
+      summary:
+      responses:
+        "200":
+          description: Carrito generado correctamente
+        "404":
+          description: Carrito no encontrado
+        "500":
+          description: Error interno del servidor al obtener el carrito, probablemente por un fallo en la conexion a la base de datos
+    delete: Elimina el carrito que contenga el id pasado como parametro
+      summary:
+      responses:
+        "200":
+          description: Carrito eliminado correctamente
+        "404":
+          description: Carrito no encontrado
+        "500":
+          description: Error interno del servidor al eliminar el carrito, probablemente por un fallo en la conexion a la base de datos
+  /api/carts/{param}/product/{param}:
+    post:
+      summary: Agrega al carrito con el id pasado como primer parametro el producto con el id pasado como segundo parametro
+      responses:
+        "200":
+          description: Producto agregado exitosamente al carrito
+        "403":
+          description: Carrito no encontrado
+        "404":
+          description: Producto no encontrado
+        "500":
+          description: Error interno del servidor al agregar al carrito pasado como primer parametro el producto pasado como segundo parametro, probablemente por un fallo en la conexion a la base de datos
+    delete:
+      summary: Elimina del carrito con el id pasado como primer parametro el producto con el id pasado como segundo parametro
+      responses:
+        "200":
+          description: Producto eliminado exitosamente del carrito
+        "403":
+          description: Carrito no encontrado
+        "404":
+          description: Producto no encontrado
+        "500":
+          description: Error interno del servidor al eliminar del carrito pasado como primer parametro el producto pasado como segundo parametro, probablemente por un fallo en la conexion a la base de datos
+
+  /api/carts/{param}/purchase:
+    post:
+      summary: Genera un ticket de compra con los produtos que contiene el carrito con el id pasado como parametro
+      responses:
+        "202":
+          description: Ticket generado exitosamente
+        "404":
+          description: Carrito no encontrado
+        "500":
+          description: Error interno del servidor al generar una orden de compra, probablemente por un fallo en la conexion a la base de datos
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        _id: 
+          type: ObjectId
+          description: Id autogenerado por mongo db
+        products:
+          type: Array
+          description: Array que contiene los productos que se agregan al carrito
+      example:
+        _id: ObjectId("6522133176zc589e4c547802")

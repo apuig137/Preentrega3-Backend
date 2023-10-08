@@ -18,8 +18,15 @@ export const checkUserRole = (role) => {
     };
 };
 
-export const adminPass = async (req, res, next) => {
+export const premiumPass = async (req, res, next) => {
     if (req.session.user && req.session.user.role === "admin" || req.session.user && req.session.user.role === "premium") {
+        return next();
+    }
+    res.status(403).send({ status: "error", message: "Unauthorized access" });
+};
+
+export const adminPass = async (req, res, next) => {
+    if (req.session.user && req.session.user.role === "admin") {
         return next();
     }
     res.status(403).send({ status: "error", message: "Unauthorized access" });

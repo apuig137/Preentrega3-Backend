@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { addLogger } from '../utils/logger.js';
 
 const router = Router();
 
@@ -27,6 +26,15 @@ router.get('/', privateAccess, async (req, res) => {
         user: req.session.user
     });
 });
+
+router.get("/products", privateAccess, async (req, res) => {
+    const response = await fetch('http://localhost:8080/api/products');
+    const data = await response.json();
+    console.log(data.products)
+    res.render('products', {
+        products: data.products
+    });
+})
 
 router.get("/addProduct", privateAccess, async (req, res) => {
     res.render("createProduct")
