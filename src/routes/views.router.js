@@ -30,7 +30,6 @@ router.get('/', privateAccess, async (req, res) => {
 router.get("/products", privateAccess, async (req, res) => {
     const response = await fetch('http://localhost:8080/api/products');
     const data = await response.json();
-    console.log(data.products)
     res.render('products', {
         products: data.products
     });

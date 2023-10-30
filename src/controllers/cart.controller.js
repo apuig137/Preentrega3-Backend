@@ -1,10 +1,11 @@
 import { cartModel } from "../dao/models/cart.model.js";
 import { ticketModel } from "../dao/models/ticket.model.js";
+import { productModel } from "../dao/models/product.model.js";
 
 export const getCarts = async (req, res) => {
     try {
         let carts = await cartModel.find()
-        res.send(carts)
+        res.send({carts})
     } catch (error) {
         console.log(error)
     }
@@ -13,7 +14,7 @@ export const getCarts = async (req, res) => {
 export const getCartById = async (req, res) => {
     let cartId = req.params.cid
     let cartFind = await cartModel.findOne({_id:cartId}).populate("products").lean()
-    if(!cartId){
+    if(!cartFind){
         res.status(404).send('Carrito no encontrado')
     } else {
         res.render("cart", { products: cartFind.products })
@@ -30,18 +31,24 @@ export const createCart = async (req, res) => {
 }
 
 export const addProductToCart = async (req, res) => {
-    let { pid, cid } = req.params
-    let productFind = await productModel.findOne({ _id:pid })
-    let cartFind = await cartModel.findOne({ _id:cid })
-    if(!productFind){
-        res.status(404).send('Producto no encontrado')
+    let { pid, cid } = req.params;
+    let productFind = await productModel.findOne({ _id: pid });
+    let cartFind = await cartModel.findOne({ _id: cid });
+
+    if (!productFind) {
+        res.status(404).send('Producto no encontrado');
     }
-    if(!cartFind){
-        res.status(403).send('Carrito no encontrado')
+    if (!cartFind) {
+        res.status(403).send('Carrito no encontrado');
     }
-    cartFind.products.push(productFind.toObject())
-    cartFind.save()
-    res.status(200).send('Producto agregado')
+    
+    cartFind.products.push({
+        collection: productFind._id,
+        name: productFind.title,
+    });
+
+    cartFind.save();
+    res.status(200).send('Producto agregado');
 }
 
 export const deleteCart = async (req, res) => {
@@ -65,6 +72,15 @@ export const deleteProductToCart = async (req, res) => {
     cart.products = cart.products.filter((cartProduct) => cartProduct._id.toString() !== pid)
     await cart.save();
     res.send("Producto eliminado del carrito")
+}
+
+export const addProductToUserCart = async (req, res) => {
+    try {
+        console.log(req.session)
+        res.send("Producto agregado al carrito del usuario")
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 export const purchase = async (req, res) => {

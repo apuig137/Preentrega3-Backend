@@ -3,6 +3,8 @@ import { dirname } from "path"
 import bcrypt from "bcrypt"
 import { default as jwt } from 'jsonwebtoken'
 import config from "./config/config.js"
+import multer from "multer"
+import path from "path"
 
 export const createHash = password => bcrypt.hashSync(password,bcrypt.genSaltSync(10))
 export const isValidPassword = (password, hash) => bcrypt.compareSync(password, hash)
@@ -56,6 +58,35 @@ export const generateUniqueCode = () => {
     }
 
     return code;
+}
+
+//const storage = multer.diskStorage({
+//    destination: function(req, file, cb){
+//        cb(null, __dirname+"/public/documents")
+//    },
+//    filename: function(req, file, cb){
+//        cb(null, file.originalname)
+//    }
+//})
+
+//export const uploader = multer({storage})
+
+export const uploader = (folderName) => {
+    return multer({
+        storage: multer.diskStorage({
+            destination: function (req, file, cb) {
+                cb(null, `${__dirname}/public/js/uploads/${folderName}`);
+            },
+            filename: function (req, file, cb) {
+                console.log("Archivo subido correctamente: ", file);
+                cb(null, file.originalname);
+            },
+        }),
+        onError: function (err, next) {
+            console.log("Error al subir el archivo: ", err);
+            next();
+        },
+    })
 }
 
 const __filename = fileURLToPath(import.meta.url)

@@ -149,7 +149,7 @@ export const deleteProduct = async (req, res) => {
 
 export const deleteAllProducts = async (req, res) => {
     try {
-      await productModel.deleteMany({}); // Elimina todos los documentos en la colección de productos
+        await productModel.deleteMany({}); // Elimina todos los documentos en la colección de productos
         res.status(200).json({ message: 'Todos los productos han sido eliminados' });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar productos' });
@@ -158,15 +158,19 @@ export const deleteAllProducts = async (req, res) => {
 
 export const mockingProducts = async (req, res) => {
     try {
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 10; i++) {
+            let code;
+            do {
+                code = generateUniqueCode();
+            } while (await productModel.findOne({ code: code }));
+
             await productModel.create({
                 title: faker.commerce.product(),
                 description: faker.commerce.productDescription(),
                 price: faker.commerce.price(),
-                code: i,
+                code: code,
                 stock: 20,
                 quantity: 0,
-                // Aquí, si no tienes una imagen de ejemplo, puedes eliminar thumbnail
             });
         }
         res.status(200).send("Productos creados correctamente");

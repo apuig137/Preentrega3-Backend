@@ -7,6 +7,7 @@ import chatRouter from "./routes/chat.router.js"
 import sessionsRouter from "./routes/sessions.router.js"
 import viewsRouter from "./routes/views.router.js"
 import ticketRouter from "./routes/ticket.router.js"
+import usersRouter from "./routes/users.router.js"
 import handlebars from "express-handlebars"
 import __dirname from "./utils.js";
 import { Server } from "socket.io"
@@ -18,6 +19,7 @@ import initializePassport from "./config/passport.config.js";
 import config from "./config/config.js";
 import { addLogger } from "./utils/logger.js";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUIExpress from "swagger-ui-express";
 
@@ -72,15 +74,17 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use(express.json())
+app.use(cookieParser());
 app.use(addLogger)
 
+app.use("/api/carts", cartRouter)
 app.use("/", viewsRouter)
 app.use("/api/products", productsRouter)
-app.use("/api/carts", cartRouter)
 app.use("/api/realtimeproducts", realTimeProductsRouter)
 app.use("/api/chat", chatRouter)
 app.use("/api/sessions", sessionsRouter)
-app.use("api/ticket", ticketRouter)
+app.use("/api/ticket", ticketRouter)
+app.use("/api/users", usersRouter)
 
 const httpServer = app.listen(PORT, () => {
     displayRoutes(app)

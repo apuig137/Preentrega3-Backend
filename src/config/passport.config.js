@@ -2,10 +2,12 @@ import passport from "passport";
 import local from "passport-local"
 import GitHubStrategy from "passport-github2"
 import userModel from "../dao/models/user.model.js"
+import { cartModel } from "../dao/models/cart.model.js";
 import {createHash,isValidPassword} from "../utils.js"
 import UserDTO from "../dao/DTOs/user.dto.js"
 
 const LocalStrategy = local.Strategy;
+
 const initializePassport = () => {
     passport.use('register', new LocalStrategy({
         usernameField: 'email',
@@ -15,18 +17,30 @@ const initializePassport = () => {
         try {
             let user = await userModel.findOne({ email: username });
             if (user) return done(null, false);
-            const newUser = new UserDTO({
+            
+            const newUser = new userModel({
                 first_name,
                 last_name,
                 email,
                 age,
                 password: createHash(password),
                 role: "user"
-            })
+            });
+
             user = await userModel.create(newUser);
+
+            const newCart = new cartModel({
+                user: newUser._id,
+                products: [],
+            });
+
+            await newCart.save();
+            newUser.carrito = newCart._id;
+            await newUser.save();
+
             return done(null, user);
         } catch (error) {
-            return done(null, false, { message: "Error creating user" });
+            return done(error, false, { message: "Error creating user" });
         }
     }));
 

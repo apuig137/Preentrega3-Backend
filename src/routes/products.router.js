@@ -12,10 +12,10 @@ router.get("/:id", getProductId)
 
 router.put('/:id', premiumPass, updateProduct);
 
-router.delete('/:id', premiumPass, deleteProduct);
-
-router.post('/mockingproducts', mockingProducts)
+router.post('/mockingproducts', adminPass, mockingProducts)
 
 router.delete("/deleteall", adminPass, deleteAllProducts)
+
+router.delete('/:id', premiumPass, deleteProduct);
 
 export default router;

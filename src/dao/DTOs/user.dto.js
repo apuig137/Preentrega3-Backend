@@ -6,5 +6,6 @@ export default class UserDTO {
         this.age = user.age,
         this.password = user.password
         this.role = user.role
+        this.cart = user.cart
     }
 }

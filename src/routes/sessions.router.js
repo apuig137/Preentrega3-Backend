@@ -5,7 +5,7 @@ import { validateToken } from '../utils.js';
 
 const router = Router();
 
-router.post('/register', passport.authenticate('register', { failureRedirect: 'http://localhost:8080/api/sessions/failregister', successRedirect: 'http://localhost:8080/api/sessions/successRegister' }), register)
+router.post('/register', passport.authenticate('register'), register)
 
 router.get('/failregister', failRegister);
 

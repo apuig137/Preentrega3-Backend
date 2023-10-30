@@ -21,6 +21,11 @@ export const successRegister = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
+        const userEmail = req.user.email;
+        const user = await userModel.findOne({ email: userEmail });
+        user.last_connection = new Date();
+        await user.save();
+
         if (!req.user) return res.status(400).send({ status: "error", error: "Incorrect credentials" });
         req.session.user = {
             name: `${req.user.first_name} ${req.user.last_name}`,
@@ -39,8 +44,12 @@ export const failLogin = async (req, res) => {
 }
 
 export const logout = async (req, res) => {
-    req.session.destroy(err => {
+    req.session.destroy(async err => {
         if (err) return res.status(500).send({ status: "error", error: "Couldn't logout" });
+        const userEmail = req.user.email;
+        const user = await userModel.findOne({ email: userEmail });
+        user.last_connection = new Date();
+        await user.save();
         res.redirect('/login');
     })
 }
