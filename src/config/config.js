@@ -13,5 +13,6 @@ export default {
             pass: process.env.MAIL_AUTH_PASS,
         },
     },
+    stripe_key: process.env.STRIPE_KEY,
     baseUrl: 'localhost:8080'
 }

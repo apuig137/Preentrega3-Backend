@@ -35,7 +35,7 @@ const initializePassport = () => {
             });
 
             await newCart.save();
-            newUser.carrito = newCart._id;
+            newUser.cart = newCart._id;
             await newUser.save();
 
             return done(null, user);

@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import userModel from '../dao/models/user.model.js';
+import { cartModel } from '../dao/models/cart.model.js';
+import { adminPass } from '../utils.js';
 
 const router = Router();
 
@@ -35,7 +38,7 @@ router.get("/products", privateAccess, async (req, res) => {
     });
 })
 
-router.get("/addProduct", privateAccess, async (req, res) => {
+router.get("/addproduct", privateAccess, async (req, res) => {
     res.render("createProduct")
 })
 
@@ -51,6 +54,49 @@ router.get("/loggerTest", async (req, res) => {
     req.logger.fatal('Mensaje de error fatal');
 
     res.send('Logs enviados. Verifica la consola o el archivo de registro.');
+})
+
+router.get("/mycart", async (req, res) => {
+    let emailUser = req.session.user.email;
+    let userFind = await userModel.findOne({ email: emailUser });
+
+    if (!userFind) {
+        return res.status(403).send("No se encontró el usuario");
+    }
+
+    const cart = userFind.cart
+
+    const response = await fetch(`http://localhost:8080/api/carts/${cart}`);
+    const data = await response.json();
+
+    res.render("myCart", { products: data.products })
+})
+
+router.get("/purchases", async (req, res) => {
+    let emailUser = req.session.user.email;
+    let userFind = await userModel.findOne({ email: emailUser });
+
+    if (!userFind) {
+        return res.status(403).send("No se encontró el usuario");
+    }
+
+    const userId = userFind._id
+
+    const response = await fetch(`http://localhost:8080/api/tickets/${userId}`);
+    const data = await response.json();
+
+    res.render("purchases", { tickets: data.tickets })
+})
+
+router.get("/admin", adminPass, async (req, res) => {
+    const response = await fetch(`http://localhost:8080/api/users/`);
+    const data = await response.json();
+
+    res.render("admin", { users: data.users })
+})
+
+router.get("/payment", async (req, res) => {
+    res.render("payment")
 })
 
 export default router;

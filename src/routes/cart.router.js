@@ -1,7 +1,13 @@
 import { Router } from "express";
-import { getCarts, getCartById, addProductToCart, deleteCart, deleteProductToCart, createCart, purchase, addProductToUserCart } from "../controllers/cart.controller.js";
+import { getCarts, getCartById, addProductToCart, deleteCart, deleteProductToCart, createCart, purchase, addProductToUserCart, getUserCart, finishPayment } from "../controllers/cart.controller.js";
 
 const router = Router()
+
+router.post("/purchase", purchase)
+
+router.post("/finishpayment", finishPayment)
+
+router.get("/getUserCart", getUserCart)
 
 router.get("/", getCarts)
 
@@ -11,12 +17,10 @@ router.get("/:cid", getCartById)
 
 router.delete("/:cid", deleteCart)
 
-router.post("/:cid/product/:pid", addProductToCart)
+router.post("/cart/:cid/product/:pid", addProductToCart)
 
 router.delete("/:cid/product/:pid", deleteProductToCart)
 
-router.post("/:cid/purchase", purchase)
-
-router.post("/addProductToCart", addProductToUserCart)
+router.post("/addProductToCart/:pid", addProductToUserCart)
 
 export default router;

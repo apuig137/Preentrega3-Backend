@@ -7,12 +7,12 @@ forms.forEach(form => {
         // Obtener el valor "pid" de los datos personalizados del formulario
         const pid = form.dataset.pid;
         
-        fetch('/api/carts/64aac67fe5099ade10431358/product/' + pid, {
+        fetch('/api/carts/addProductToCart/' + pid, {
             method: 'POST'
         })
         .then(result => {
             if (result.status === 200) {
-                window.location.replace('/api/carts/64aac67fe5099ade10431358'); // Redirigir al usuario a la página de carrito
+                window.location.replace('/mycart'); // Redirigir al usuario a la página de carrito
             }
         })
         .catch(error => {

@@ -1,6 +1,11 @@
 import { cartModel } from "../dao/models/cart.model.js";
 import { ticketModel } from "../dao/models/ticket.model.js";
 import { productModel } from "../dao/models/product.model.js";
+import userModel from "../dao/models/user.model.js";
+import { generateUniqueCode } from "../utils.js";
+import Stripe from "stripe";
+import config from "../config/config.js";
+import { createPaymentIntent } from "../utils/payments.js";
 
 export const getCarts = async (req, res) => {
     try {
@@ -17,7 +22,7 @@ export const getCartById = async (req, res) => {
     if(!cartFind){
         res.status(404).send('Carrito no encontrado')
     } else {
-        res.render("cart", { products: cartFind.products })
+        res.send({ products: cartFind.products })
     }
 }
 
@@ -74,54 +79,153 @@ export const deleteProductToCart = async (req, res) => {
     res.send("Producto eliminado del carrito")
 }
 
+export const getUserCart = async (req, res) => {
+    try {
+        console.log(req.session);
+
+        let emailUser = req.session.user.email;
+        let userFind = await userModel.findOne({ email: emailUser });
+
+        if (!userFind) {
+            return res.status(403).send("No se encontró el usuario");
+        }
+
+        res.send(userFind.cart);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 export const addProductToUserCart = async (req, res) => {
     try {
-        console.log(req.session)
+        let { pid } = req.params
+        let emailUser = req.session.user.email
+        let productFind = await productModel.findOne({ _id: pid });
+        let userFind = await userModel.findOne({ email:emailUser })
+
+        if (!userFind) {
+            res.status(403).send("No se encontró el usuario");
+        }
+        if (!productFind) {
+            res.status(404).send("No se encontró el producto");
+        }
+
+        let userId = userFind._id
+        let userCart = await cartModel.findOne({ user: userId })
+
+        const existingProduct = userCart.products.find(item => item.collection.equals(productFind._id));
+        if (existingProduct) {
+            existingProduct.quantity += 1;
+        } else {
+            userCart.products.push({
+                collection: productFind._id,
+                name: productFind.title,
+                quantity: 1,
+                price: productFind.price
+            });
+        }
+        await userCart.save();
         res.send("Producto agregado al carrito del usuario")
     } catch (error) {
         console.log(error)
     }
 }
 
+
 export const purchase = async (req, res) => {
-    const cartId = req.params.cid;
-    
     try {
-        // Obtén el carrito por su ID
-        const cart = await cartModel
-            .findById(cartId)
-            .populate("products.collection");
+        const userEmail = req.session.user.email
+        const user = await userModel.findOne({ email: userEmail })
+        if(!user){
+            return res.status(403).send("Usuario no encontrado");
+        }
+
+        // code
+        let code = generateUniqueCode()
+        const existingTicket = await ticketModel.findOne({ code: code });
+        if (existingTicket) {
+            let newCode;
+            do {
+                newCode = generateUniqueCode();
+            } while (await ticketModel.findOne({ code: newCode }));
+            code = newCode;
+        }
+
+        //amount
+        const userId = user._id
+        const userCart = await cartModel.findOne({ user: userId })
+        let totalAmount = 0;
+        userCart.products.forEach((product) => {
+            const productTotal = product.price * product.quantity;
+            totalAmount += productTotal;
+        });
+
+        const purchaseOrder = new ticketModel({
+            code: code,
+            purchase_datetime: new Date(),
+            amount: totalAmount,
+            purchaser: user._id
+        })
+        await purchaseOrder.save();
         
-        if (!cart) {
-            return res.status(404).json({ message: "Cart not found" });
+        user.purchases.push(purchaseOrder._id)
+        userCart.products = []
+
+        await user.save()
+        await userCart.save()
+
+        try {
+            const paymentIntentInfo = {
+                amount: totalAmount,
+                currency: 'usd'
+            };
+            const result = await createPaymentIntent(req, res, paymentIntentInfo);
+            res.redirect('/payment');
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error: "Error durante el pago" })
         }
         
-        // Recorre los elementos del carrito
-        for (const cartItem of cart.products) {
-            if (cartItem.collection) {
-                const product = cartItem.collection;
-                
-                // Verifica el stock del producto
-                if (product.stock >= cartItem.quantity) {
-                    // Resta la cantidad del producto del stock
-                    product.stock -= cartItem.quantity;
-                    await product.save();
-                }
-            }
-        }
-        
-        // Limpieza del carrito
-        cart.products = [];
-        await cart.save();
-        const ticket = await ticketModel.create({
-            code: uniqueCode,
-            purchase_datetime: Date.now(),
-            amount,
-            purchaser: req.user.email
-        }) 
-        res.status(200).json({ message: "New ticket generated" });
     } catch (error) {
-        console.error("Error finalizing purchase:", error);
-        res.status(500).json({ message: "Error finalizing purchase" });
+        console.log(error)
+    }
+}
+
+const stripe = new Stripe(config.stripe_key); // Reemplaza 'tu_clave_secreta_de_stripe' por tu clave secreta de Stripe
+
+export const finishPayment = async (req, res) => {
+    try {
+        // Datos de la tarjeta desde req.body
+        const cardNumber = req.body.cardNumber;
+        const expirationDate = req.body.expirationDate;
+        const cvc = req.body.cvc;
+
+        // Crea un nuevo método de pago (tarjeta) en Stripe
+        const paymentMethod = await stripe.paymentMethods.create({
+            type: 'card',
+            card: {
+                number: cardNumber,
+                exp_month: expirationDate.split('/')[0], // Divide la fecha en mes y año
+                exp_year: expirationDate.split('/')[1],
+                cvc: cvc,
+            },
+        });
+
+        // Ahora que tienes el método de pago, puedes usarlo para realizar el pago
+        const charge = await stripe.charges.create({
+            amount: 1000, // El monto en centavos (ejemplo: $10.00)
+            currency: 'usd', // La moneda
+            payment_method: paymentMethod.id, // Utiliza el ID del método de pago creado
+            description: 'Compra de productos', // Descripción de la compra
+        });
+
+        // Si la carga se completó con éxito, puedes enviar una respuesta al cliente
+        res.json({ message: 'Pago exitoso', charge });
+
+    } catch (error) {
+        // Si ocurre un error durante el proceso de pago, envía una respuesta de error al cliente
+        console.log(error)
+        res.status(500).json({ error: 'Error durante el pago' });
     }
 }

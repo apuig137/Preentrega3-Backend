@@ -2,7 +2,7 @@
     {{#each products}}
         <div>
             <p>{{this.title}} ${{this.price}}</p>
-            <form id="addProductToCart" data-pid="{{this._id}}" action="/api/carts/64aac67fe5099ade10431358/product" method="POST">
+            <form id="addProductToCart" data-pid="{{this._id}}" action="/api/carts/addProductToCart/" method="POST">
                 <button type="submit">Agregar al carrito</button>
             </form>
 

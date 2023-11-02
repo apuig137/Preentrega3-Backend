@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>Formulario de Pago</h1>
+    <form action="/api/carts/finishpayment" method="POST" id="payment-form">
+        <label for="cardNumber">Número de Tarjeta:</label>
+        <div id="card-number-element"></div><br><br>
+
+        <label for="expirationDate">Fecha de Expiración (MM/AA):</label>
+        <div id="card-expiration-element"></div><br><br>
+
+        <label for="cvc">CVC:</label>
+        <div id="card-cvc-element"></div><br><br>
+
+        <label for="country">País:</label>
+        <input type="text" id="country" name="country" placeholder="País" required><br><br>
+
+        <input type="submit" value="Pagar">
+    </form>
+
+    <div id="card-errors" role="alert"></div>
+
+    <script>
+        var stripe = Stripe('pk_test_51O7TTqLxN9E1L8CPqaB68OiEEiq2rooVzjD6Qn1LXkI4XnAYYrTc9KuDfsUgv7AZr165iqb5q0SGWLp5MPiOuKfi00bvD3uEon');
+        var elements = stripe.elements();
+
+        var cardNumberElement = elements.create('cardNumber', {
+            style: {
+                base: {
+                    iconColor: '#666EE8',
+                    color: '#31325F',
+                    fontFamily: 'Arial, sans-serif',
+                    fontSize: '16px',
+                },
+            }
+        });
+        cardNumberElement.mount('#card-number-element');
+
+        var cardExpiryElement = elements.create('cardExpiry', {
+            style: {
+                base: {
+                    iconColor: '#666EE8',
+                    color: '#31325F',
+                    fontFamily: 'Arial, sans-serif',
+                    fontSize: '16px',
+                },
+            }
+        });
+        cardExpiryElement.mount('#card-expiration-element');
+
+        var cardCvcElement = elements.create('cardCvc', {
+            style: {
+                base: {
+                    iconColor: '#666EE8',
+                    color: '#31325F',
+                    fontFamily: 'Arial, sans-serif',
+                    fontSize: '16px',
+                },
+            }
+        });
+        cardCvcElement.mount('#card-cvc-element');
+
+        cardNumberElement.on('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        var form = document.getElementById('payment-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            stripe.createPaymentMethod({
+                type: 'card',
+                card: cardNumberElement,
+                billing_details: {
+                    name: 'Nombre del Titular',
+                },
+            }).then(function(result) {
+                if (result.error) {
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                } else {
+                    fetch('/api/carts/finishpayment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ payment_method_id: result.paymentMethod.id }),
+                    }).then(function(response) {
+                        return response.json();
+                    }).then(function(data) {
+                        // Maneja la respuesta del servidor (puede mostrar un mensaje de éxito o error)
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

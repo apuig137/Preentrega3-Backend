@@ -83,7 +83,7 @@ app.use("/api/products", productsRouter)
 app.use("/api/realtimeproducts", realTimeProductsRouter)
 app.use("/api/chat", chatRouter)
 app.use("/api/sessions", sessionsRouter)
-app.use("/api/ticket", ticketRouter)
+app.use("/api/tickets", ticketRouter)
 app.use("/api/users", usersRouter)
 
 const httpServer = app.listen(PORT, () => {

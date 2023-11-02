@@ -1,0 +1,14 @@
+{{#if products}}
+    {{#each products}}
+        <div>
+            <p>{{this.name}} x{{this.quantity}} ${{this.price}}c/u</p>
+        </div>
+    {{/each}}
+    <div>
+        <form action="/api/carts/purchase" method="POST">
+                <button type="submit">Comprar</button>
+        </form>
+    </div>
+{{else}}
+    <p>No hay productos</p>
+{{/if}}

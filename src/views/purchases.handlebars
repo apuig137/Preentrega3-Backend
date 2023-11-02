@@ -1,0 +1,10 @@
+{{#if tickets}}
+    {{#each tickets}}
+        <div>
+            <h1>Mis compras:</h1>
+            <p>Fecha:{{this.purchase_datetime}}, monto: ${{this.amount}}</p>
+        </div>
+    {{/each}}
+{{else}}
+    <p>No hiciste ninguna compra</p>
+{{/if}}

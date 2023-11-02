@@ -1,0 +1,16 @@
+{{#if users}}
+    {{#each users}}
+        <div>
+            <p>Usuario:{{this.first_name}} {{this.last_name}} - {{this.email}} - {{this.role}}</p>
+            <form id="deleteUser" data-uid="{{this._id}}" action="/api/users/" method="DELETE">
+                <button type="submit">Eliminar</button>
+            </form>
+            <form id="changeRole" data-uid="{{this._id}}" action="/api/users/updateRole/" method="POST">
+                <button type="submit">Actualizar rol</button>
+            </form>
+        </div>
+    {{/each}}
+{{else}}
+    <p>No hay usuarios</p>
+{{/if}}
+<script src="/js/admin.js"></script>
